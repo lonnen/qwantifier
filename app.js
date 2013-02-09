@@ -1,10 +1,7 @@
-
-/**
- * Module dependencies.
- */
-
 var express = require('express'),
-    app = express(express.logger());
+    app = express(express.logger()),
+    classifier = require('classifier'),
+    bayes = new classifier.Bayesian();
 
 // enable json, urlencoding, and multipart form
 // processing into req.body var
@@ -25,7 +22,8 @@ app.configure('development', function(){
  *     class - a category to classify the text as (default: unlassified)
  */
 app.post('/train', function(req, res) {
-    res.send({"query": req.query, "params": req.params, "body": req.body});
+    bayes.train(req.body.text, req.body.class);
+    res.send(200, "updated\n");
 });
 
 /**
@@ -36,7 +34,11 @@ app.post('/train', function(req, res) {
  *     text - a string to train on
  */
 app.post('/classify', function(req, res) {
-    res.send({"query": req.query, "params": req.params, "body": req.body});
+    var text = req.body.text;
+    res.send({
+	"category": bayes.classify(text),
+	"text": text
+    });
 });
 
 /**
@@ -45,7 +47,7 @@ app.post('/classify', function(req, res) {
  * serializes the state of the classifier to JSON
  */
 app.get('/backup', function(req, res) {
-    res.send({"query": req.query, "params": req.params, "body": req.body});
+    res.send(bayes.toJSON());
 });
 
 /**
@@ -56,7 +58,8 @@ app.get('/backup', function(req, res) {
  *     dump - the serialized JSON
  */
 app.post('/restore', function(req, res) {
-    res.send({"query": req.query, "params": req.params, "body": req.body});
+    bayes.fromJSON(req.body)
+    res.send(200, "loaded\n");
 });
 
 
@@ -65,12 +68,14 @@ app.post('/restore', function(req, res) {
  *
  * resets the classifier and blanks the training data
  */
-app.post('/restore', function(req, res) {
-    res.send({"query": req.query, "params": req.params, "body": req.body});
+app.post('/reset', function(req, res) {
+    delete bayes;
+    new classifier.Bayesian();
+    res.send(200, "classifier reset\n");
 });
 
 app.get('/', function(req, res) {
-    res.send(200, "and... SCENE!");
+    res.send(200, "and... SCENE!\n");
 });
 
 app.set('port', process.env.PORT || 3000);
