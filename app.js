@@ -7,7 +7,6 @@ var express = require('express'),
 // processing into req.body var
 app.use(express.bodyParser());
 
-
 // if app.get('env') == 'development'
 app.configure('development', function(){
   app.use(express.errorHandler());
@@ -74,8 +73,11 @@ app.post('/reset', function(req, res) {
     res.send(200, "classifier reset\n");
 });
 
+/**
+ * NOOP for uptime monitoring
+ */
 app.get('/', function(req, res) {
-    res.send(200, "and... SCENE!\n");
+    res.send(200);
 });
 
 app.set('port', process.env.PORT || 3000);
