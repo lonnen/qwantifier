@@ -14,7 +14,7 @@ app.configure('development', function(){
 
 /**
  * POST /train
- * 
+ *
  * supervised training of a classification on a body of text.
  * expects the following fields in the request body:
  *     text  - a string to train on
@@ -68,8 +68,7 @@ app.post('/restore', function(req, res) {
  * resets the classifier and blanks the training data
  */
 app.post('/reset', function(req, res) {
-    delete bayes;
-    new classifier.Bayesian();
+    bayes = new classifier.Bayesian();
     res.send(200, "classifier reset\n");
 });
 
